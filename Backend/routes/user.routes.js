@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/register', RegisterUser);
 router.post('/login', Login);
-router.put('/updateUser/:id', updateUserData)
+router.put('/updateUser/:email', updateUserData)
 //router.get('/profile', GetUserProfile );
 
 

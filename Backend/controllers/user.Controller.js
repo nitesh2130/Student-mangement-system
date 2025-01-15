@@ -80,9 +80,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
         password:password,  //password is will be hashed is autometically
         role: role
     });
-    console.log(`thus is new user ${newUser}`);
-
-    //console.log(`bhai main user check kar rha hu ......${newUser.name}`);
+    //console.log(`thus is new user ${newUser}`);
 
     const createdUser = await UserModel.findOne({
         where:{
@@ -121,7 +119,7 @@ const Login = asyncHandler(async(req, res) => {
     })
 
     if(!user) {
-        throw new ApiError(409, "Email is not valid")
+        throw new ApiError(409, "Email is not valid");
     }
 
     const ispasswordMatch = await bcrypt.compare(password, user.password);
@@ -159,11 +157,13 @@ const Login = asyncHandler(async(req, res) => {
 const updateUserData = asyncHandler(async(req, res) => {
 //const id = JSON.stringify(req.params);
 //const id = parseInt(req.params.id, 10);
-const emailFormBody = JSON.stringify(req.params);
+    const emailFormParams = JSON.stringify(req.params);
+    //const emailFormParams = req.params
     //console.log(`...............${req.params}`);   we can't access id like this in the postgress Sql , we will use this below methods
     //console.log(`...666666.....${emailFormBody}`);
 
     const {name, email, password, role} = req.body;
+    console.log(emailFormParams);
 
     //check feild is update or not
     if(!name && !email && !password && !role) {
@@ -172,10 +172,11 @@ const emailFormBody = JSON.stringify(req.params);
 
     //check user is exist or not
     const user = await UserModel.findOne({
-        where: {
-            email:email
+        where:{
+            email:emailFormParams
         }
-    });
+    })
+    //console.log(`..........${user}`);
     if(!user) {
         throw new ApiError(404, 'user not found');
     }
@@ -201,7 +202,11 @@ const emailFormBody = JSON.stringify(req.params);
             user.email = email
         }
     }
-    const updateUser = await user.save();
+    await user.save();
+    
+    res.status(200).json(
+        new ApiResponse(200, 'user update successfully')
+    )
 })
 
 
