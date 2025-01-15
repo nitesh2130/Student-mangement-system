@@ -12,11 +12,11 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
     UserModel= await createUserModel(sequelize)
-    await sequelize.sync({forse:true});
+    await sequelize.sync({});
     console.log('Database is connected');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
 };
 
-export { connectDB, sequelize };
+export { connectDB, UserModel, sequelize };
