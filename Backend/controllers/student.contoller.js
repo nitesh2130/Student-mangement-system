@@ -29,7 +29,6 @@ const RegisterStudent = asyncHandler(async(req,res) => {
             email:email
         }
     })
-
     //console.log(`/////////////${studentIsExist}`)
     if(studentIsExist) {
         throw new ApiError(401, "student is allready exist")
@@ -65,7 +64,7 @@ const RegisterStudent = asyncHandler(async(req,res) => {
 //update student row
 
 const UpdateStudent = asyncHandler(async(req,res) => {
-    const emailFormBody = JSON.stringify(req.params);
+    const {id} = req.params
     // checking request body if not empty
     if (!req.body || Object.keys(req.body).length === 0) {
         throw new ApiError(400, "Request body cannot be empty");
@@ -76,17 +75,16 @@ const UpdateStudent = asyncHandler(async(req,res) => {
         throw new ApiError(409, "all feild are empty, Its required some data");
     }
 
-    const student = StudentModel.findOne({
-        where:{
-            email:emailFormBody
-        }
-    });
+    const student = await StudentModel.findByPk(id);
+    if(!student) {
+        throw new apiError(404, 'student is not found')
+    }
 
     if(name) {
         student.name = name
     }
     if(email) {
-        const checkEmail = StudentModel.findOne({
+        const checkEmail = await StudentModel.findOne({
             where:{email:email}
         })
         if(checkEmail) {
@@ -110,10 +108,14 @@ const UpdateStudent = asyncHandler(async(req,res) => {
         student.photo = photo
     }
 
-    await student.save()
+    console.log('................................................')
+    console.log(student.name)
 
+    await student.save();
+    // const studentData = await student.save();
+    // console.log(`--------------------- ${studentData}`)
     res.status(200).json(
-        ApiResponse(200, 'student is updated successfully')
+        new ApiResponse(200, 'student is updated successfully')
     )
 })
 
@@ -122,17 +124,15 @@ const UpdateStudent = asyncHandler(async(req,res) => {
 //delete student row
 
 const DeleteStudent = asyncHandler(async(req, res) => {
-    const emailFormBody = JSON.stringify(req.params);
-    if(!emailFormBody) {
+    const {id} = req.params;
+    console.log(`.........${id}`)
+    if(!id) {
         throw new ApiError(404, 'user not found');
     }
 
-    const student = UserModel.findOne({
-        where:{email:emailFormBody}
-    })
-
+    const student = await StudentModel.findByPk(id);
     if(!student) {
-        throw new ApiError(409, 'user not found')
+        throw new ApiError(404, 'user not found');
     }
 
     //delete the student
@@ -157,15 +157,15 @@ const GetAllStudent = asyncHandler(async(req, res) => {
     }
 
 
-    res.statusa(200).json(
-        ApiResponse(200, 'search all user successfully',{student})
+    res.status(200).json(
+        new ApiResponse(200, 'search all user successfully',{allStudent})
     )
 })
 
 //filter by branch
 
-const NameAndSemesterWiseStudent = asyncHandler((req,res) => {
-    const { name, semester } = req.body;
+const NameAndSemesterWiseStudent = asyncHandler(async(req,res) => {
+    const { name, semester} = req.body;
 
     if( !name && !semester ) {
         throw new ApiError(409,'At least one filter is need')
@@ -173,25 +173,25 @@ const NameAndSemesterWiseStudent = asyncHandler((req,res) => {
 
     //for getting filter student by branch 
     if(name) {
-        const students = StudentModel.findAll({
-            where:{name:name}
-            // limit:10, //limit to display 10 user
-            // offset:0, //start at first result
+        const students = await StudentModel.findAll({
+            where:{name:name},
+            limit:10, //limit to display 10 user
+            offset:0, //start at first result
         })
 
         if(!students) {
-            throw new ApiError(404, `not have the student in ${name} name`, {students})
+            throw new ApiError(404, `not have the student in ${name} name`)
         }
         res.status(200).json(
-            ApiResponse(200, `This is all student is getting name: ${name}`, {students} )
+            new ApiResponse(200, `This is all student is getting name: ${name}`, {students} )
         )
     }
 
 
-    
+
     //for getting filter student by semster 
     if(semester) {
-        const students = StudentModel.findAll({
+        const students = await StudentModel.findAll({
             where:{semester:semester}
             // limit:10, //limit to display 10 user
             // offset:0, //start at first result
@@ -201,7 +201,7 @@ const NameAndSemesterWiseStudent = asyncHandler((req,res) => {
             throw new ApiError(404, `not have the student in ${semester}th semester`)
         }
         res.status(200).json(
-            ApiResponse(200, `This is all student is getting ${semester}th semester` )
+            new ApiResponse(200, `This is all student is getting ${semester}th semester`, {students} )
         )
     }
 

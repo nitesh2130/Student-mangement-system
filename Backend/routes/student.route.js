@@ -7,8 +7,8 @@ const router = Router();
 router.use(authenticatUser);
 
 router.post('/registerStudent', RegisterStudent);
-router.put('/updateStudent', UpdateStudent);
-router.delete('/deleteStudent', DeleteStudent);
+router.put('/updateStudent/:id', UpdateStudent);
+router.delete('/deleteStudent/:id', DeleteStudent);
 router.get('/Student', GetAllStudent);
 router.get('/filterdStudent', NameAndSemesterWiseStudent);
 
