@@ -7,10 +7,10 @@ const router = Router();
 router.use(authenticatUser);
 
 router.post('/registerStudent', RegisterStudent);
-router.post('/registerStudent', UpdateStudent);
-router.post('/registerStudent', DeleteStudent);
-router.post('/registerStudent', GetAllStudent);
-router.post('/registerStudent', NameAndSemesterWiseStudent);
+router.put('/updateStudent', UpdateStudent);
+router.delete('/deleteStudent', DeleteStudent);
+router.get('/Student', GetAllStudent);
+router.get('/filterdStudent', NameAndSemesterWiseStudent);
 
 
 export default router;

@@ -157,13 +157,14 @@ const Login = asyncHandler(async(req, res) => {
 const updateUserData = asyncHandler(async(req, res) => {
 //const id = JSON.stringify(req.params);
 //const id = parseInt(req.params.id, 10);
-    const emailFormParams = JSON.stringify(req.params);
-    //const emailFormParams = req.params
+    const {id} = req.params;
+    //const {email :emailFormParams} = JSON.stringify(req.params);
+    //const {email:emailFormParams} = req.params;
     //console.log(`...............${req.params}`);   we can't access id like this in the postgress Sql , we will use this below methods
     //console.log(`...666666.....${emailFormBody}`);
 
     const {name, email, password, role} = req.body;
-    console.log(emailFormParams);
+    console.log(id);
 
     //check feild is update or not
     if(!name && !email && !password && !role) {
@@ -171,11 +172,7 @@ const updateUserData = asyncHandler(async(req, res) => {
     };
 
     //check user is exist or not
-    const user = await UserModel.findOne({
-        where:{
-            email:emailFormParams
-        }
-    })
+    const user = await UserModel.findByPk(id)
     //console.log(`..........${user}`);
     if(!user) {
         throw new ApiError(404, 'user not found');

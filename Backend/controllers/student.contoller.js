@@ -1,36 +1,42 @@
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { StudentModel, UserModel } from "../db/index.js";
+import { StudentModel } from "../db/index.js";
 import { authenticatUser } from "../middlewares/authentication.js";
 import { where } from "sequelize";
 
 //create student
-const RegisterStudent = asyncHandler((req,res) => {
+const RegisterStudent = asyncHandler(async(req,res) => {
 
     //if body is not have empty 
     if (!req.body || Object.keys(req.body).length === 0) {
         throw new ApiError(400, "Request body cannot be empty");
     }
+    
+    
+
 
     const { name, email, dob, branch, semester, photo } = req.body;
+    console.log(`.....................${email}`);
 
-    if([ name, email, dob, branch, semester, photo ].some((feild) => feild?.trim() ==="")) {
+    if([ name, email, dob, branch, semester, photo ].some((feild) => !feild?.trim() ==="")) {
         throw new ApiError(400, "All feild are required");
     }
 
     //check student is allready exist or not
-    const studentIsExist = StudentModel.findOne({
+    const studentIsExist = await StudentModel.findOne({
         where: {
             email:email
         }
     })
+
+    //console.log(`/////////////${studentIsExist}`)
     if(studentIsExist) {
-        throw new ApiError(401, "student is allready exist");
+        throw new ApiError(401, "student is allready exist")
     }
 
-    const student = StudentModel.create({
-        name:name,
+    const student = await StudentModel.create({
+        name:name, 
         email:email,
         dob:dob,
         branch:branch,
@@ -38,8 +44,10 @@ const RegisterStudent = asyncHandler((req,res) => {
         photo:photo
     });
 
+    //console.log(`,,,,,,,,,,,,,,,,,,,,,${student}`)
+
     //check student is created or not
-    const createdStudent = StudentModel.findOne({
+    const createdStudent = await StudentModel.findOne({
         where:{email:email}
     });
 
@@ -198,9 +206,5 @@ const NameAndSemesterWiseStudent = asyncHandler((req,res) => {
     }
 
 })
-
-
-
-
 
 export { RegisterStudent, UpdateStudent, DeleteStudent, GetAllStudent, NameAndSemesterWiseStudent };
