@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -7,18 +8,46 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const formHandler = (e) => {
+  const formHandler = async (e) => {
     e.preventDefault();
-    const formData = { name, role, email, password };
-    console.log("Form Submitted:", formData);
+    const registerUserData = { name, role, email, password };
+    console.log("Form Submitted:", registerUserData);
+    setName("");
+    setEmail("");
+    setPassword("");
+    setRole("");
 
     //do api call for save the data on backend
+    await fetch("http://localhost:3000/users/register", {
+      method: "POST", // Use POST to send data to the backend
+      headers: {
+        "Content-Type": "application/json", // Send JSON data
+      },
+      body: JSON.stringify(registerUserData), // Convert the data object to a JSON string
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to register");
+        }
+        return response.json(); // Parse the JSON response
+      })
+      .then((data) => {
+        console.log("Registration successful:", data);
+        toast.success("You are registerd successfully!", {
+          className: "bg-green-500 text-white font-semibold p-4 rounded-md",
+          progressClassName: "bg-white",
+        });
+      })
+      .catch((error) => {
+        console.error("Error registering:", error.message);
+      });
   };
+  //};
 
   //To navigate login page
   const navigate = useNavigate();
   const redirectToLogin = () => {
-    navigate("/login");
+    navigate("/");
   };
 
   return (

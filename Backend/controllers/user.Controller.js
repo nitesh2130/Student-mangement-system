@@ -101,8 +101,11 @@ const RegisterUser = asyncHandler(async (req, res) => {
 //Login user
 
 const Login = asyncHandler(async(req, res) => {
-    //console.log(`..............${req.body}...................`);
+    console.log(`..............${req.body}...................`);
     const { email, password } = req.body;
+
+    console.log(`password...................... ${password} `);
+    console.log(`email...................... ${email} `);
 
     if([email, password ].some((feild) => feild?.trim() ==="")) {
         throw new ApiError(400, "All feild are required");
@@ -149,9 +152,25 @@ const Login = asyncHandler(async(req, res) => {
     )
 });
 
-// const GetUserProfile = asyncHandler(async(req, res) => {
-//     res.status(200).json(req.user);
-// })
+const GetUserProfile = asyncHandler(async(req, res) => {
+    const { id } = req.params;
+    if(!id) {
+        throw new ApiError(404, "id not found");
+    }
+
+    console.log(`id ........... ${id}`);
+
+    const user =  await UserModel.findByPk(id)
+    console.log(`user ...................${user}`);
+    if(!user) {
+        throw new ApiError(404, "user not found")
+    }
+
+    res.status(200)
+    .json(
+        new ApiResponse(200, 'get user successfully', {user})
+    );
+})
 
 
 const updateUserData = asyncHandler(async(req, res) => {
@@ -221,4 +240,4 @@ const logoutUser = asyncHandler((req, res) => {
 
 
 
-export {RegisterUser, Login, updateUserData };
+export {RegisterUser, Login, updateUserData, GetUserProfile };

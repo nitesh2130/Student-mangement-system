@@ -13,6 +13,9 @@ const authenticatUser = asyncHandler(async(req, res, next) => {
 
     try {
         const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if(!decode) {
+            throw new ApiError(401, "Access denied. token not verify");
+        }
         return next();
         
     } catch (error) {

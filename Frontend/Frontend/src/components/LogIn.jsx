@@ -1,23 +1,59 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import Home from "./Home";
 
 const LogIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [id, setId] = useState();
+  const [accessToken, setAccessToken] = useState();
+  const navigate = useNavigate();
 
   const FormSubmitHandler = (e) => {
     e.preventDefault();
     const formData = { email, password };
     console.log("Form Submitted:", formData);
     //API call for connect to backend and DB
+
+    fetch("http://localhost:3000/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // Correct header value
+      },
+      body: JSON.stringify(formData), // Serialize formData
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        return response.json(); // Parse the response as JSON
+      })
+      .then((data) => {
+        console.log("Response data:", data);
+        toast.success("You are login successfully!", {
+          className: "bg-green-500 text-white font-semibold p-4 rounded-md",
+          progressClassName: "bg-white",
+        });
+
+        localStorage.setItem("id", data.message.loggedInUser.id);
+        localStorage.setItem("accessToken", data.message.accessToken);
+        localStorage.setItem("isLogin", "true");
+
+        navigate("/home");
+      })
+      .catch((error) => {
+        console.error("This is an error:", error.message); // Proper error handling
+      });
+    //console.log(`login:....................${id}`);
   };
 
   //To navigate signUp page
-  const navigate = useNavigate();
   const redirectToSignUp = () => {
     navigate("/signup");
   };
 
+  // console.log(`this is id ..........${id}`);
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-400 to-purple-500">
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
@@ -71,3 +107,17 @@ const LogIn = () => {
 };
 
 export default LogIn;
+
+// fetch("http://your-backend-url/api/endpoint")
+//   .then((response) => {
+//     if (!response.ok) {
+//       // Handle backend-defined errors
+//       return response.json().then((data) => {
+//         throw new Error(data.error); // Backend-defined error
+//       });
+//     }
+//     return response.json();
+//   })
+//   .catch((error) => {
+//     console.error("Backend error:", error.message); // "Invalid request"
+//   });
