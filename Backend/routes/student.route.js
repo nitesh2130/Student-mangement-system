@@ -9,7 +9,7 @@ router.post('/registerStudent', RegisterStudent);
 router.put('/updateStudent/:id', UpdateStudent);
 router.delete('/deleteStudent/:id', DeleteStudent);
 router.get('/Student', GetAllStudent);
-router.get('/filterdStudent', NameAndSemesterWiseStudent);
+router.post('/filterdStudent', NameAndSemesterWiseStudent);
 
 
 export default router;

@@ -8,6 +8,7 @@ import UserDetailsEdit from "./components/UserDetailsEdit";
 import AddStudent from "./components/AddStudent";
 import SearchStudent from "./components/SearchStudent";
 import { ToastContainer, toast } from "react-toastify";
+import UpdateStudent from "./components/UpdateStudent";
 
 const App = () => {
   return (
@@ -19,9 +20,9 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/userdetails" element={<UserDetails />} />
-        <Route path="/userdetailsedit" element={<UserDetailsEdit />} />
         <Route path="/addstudent" element={<AddStudent />} />
         <Route path="/searchstudent" element={<SearchStudent />} />
+        <Route path="/updatestudent" element={<UpdateStudent />} />
       </Routes>
     </div>
   );

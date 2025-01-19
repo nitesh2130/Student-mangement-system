@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState();
+  const [user, setUser] = useState({});
   const [token, setToken] = useState(null);
-  const [name, setName] = useState();
-  const [role, setRole] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  // const [name, setName] = useState();
+  // const [role, setRole] = useState();
+  // const [email, setEmail] = useState();
+  // const [password, setPassword] = useState();
   const navigate = useNavigate();
 
   // let name = null;
@@ -21,6 +21,7 @@ const UserDetails = () => {
   const accessToken = localStorage.getItem("accessToken");
   // console.log(id);
 
+  //secure the route
   useEffect(() => {
     const isLogin = localStorage.getItem("isLogin");
 
@@ -48,19 +49,29 @@ const UserDetails = () => {
         if (!response.ok) {
           throw new Error("failed to fetch the data");
         }
+
         return response.json();
       })
       .then((data) => {
-        // name = user?.message?.user?.name;
-        // role = user?.message?.user?.role;
-        // email = user?.message?.user?.email;
-        // password = user?.message?.user?.password;
+        // setName(user?.message?.user?.name);
+        // setRole(user?.message?.user?.role);
+        // setEmail(user?.message?.user?.email);
+        // setPassword(user?.message?.user?.password)
+        const newUser = {
+          name: data?.message?.user?.name,
+          role: data?.message?.user?.role,
+          email: data?.message?.user?.email,
+          password: data?.message?.user?.password,
+        };
+        console.log("data", data);
+        console.log("newUser", newUser);
+
         //console.log(`data in the {}...........${{ data }}`);
         //const { name, id, email } = data.message.user;
         // console.log(`data in the ...........${data}`);
 
         // console.log(`name {}...........${name}}`);
-        setUser(data);
+        setUser(newUser);
       })
       .catch((error) => {
         console.log(`Backend error : ${error.message}`);
@@ -74,7 +85,7 @@ const UserDetails = () => {
   // to save form
   const handleSave = (e) => {
     e.preventDefault();
-    const formData = { name, role, email, password };
+    //const formData = { name, role, email, password };
     setIsEditing(false);
 
     //call Api for the update the user data
@@ -82,10 +93,15 @@ const UserDetails = () => {
     fetch(apiurlForUpdate, {
       method: "PUT",
       headers: {
-        containt: "appliction/json",
+        "Content-Type": "application/json",
         Authorization: `bearer ${accessToken}`,
-        body: JSON.stringify({ name, role, email, password }),
       },
+      body: JSON.stringify({
+        name: user.name,
+        role: user.role,
+        email: user.email,
+        password: user.password,
+      }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -97,7 +113,7 @@ const UserDetails = () => {
       })
       .catch((error) => console.log(error));
 
-    alert("Details updated successfully!");
+    //alert("Details updated successfully!");
   };
 
   // for input change
@@ -118,6 +134,7 @@ const UserDetails = () => {
               <input
                 type="text"
                 name="name"
+                required
                 value={user.name}
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -129,6 +146,7 @@ const UserDetails = () => {
                 type="text"
                 name="role"
                 value={user.role}
+                required
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -139,11 +157,12 @@ const UserDetails = () => {
                 type="email"
                 name="email"
                 value={user.email}
+                required
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-gray-700">Password</label>
               <input
                 type="password"
@@ -152,7 +171,7 @@ const UserDetails = () => {
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
             <button
               type="submit"
               className="bg-green-500 text-white p-2 rounded-md"
@@ -163,17 +182,15 @@ const UserDetails = () => {
         ) : (
           <div className="text-gray-700 space-y-4">
             <p>
-              <strong>Name:</strong> {user?.message?.user?.name}
+              <strong>Name:</strong> {user?.name}
             </p>
             <p>
-              <strong>Role:</strong> {user?.message?.user?.role}
+              <strong>Role:</strong> {user?.role}
             </p>
             <p>
-              <strong>Email:</strong> {user?.message?.user?.email}
+              <strong>Email:</strong> {user?.email}
             </p>
-            <p>
-              <strong>Password:</strong> {user?.message?.user?.password}
-            </p>
+
             <button
               onClick={toggleEdit}
               className="bg-blue-500 text-white p-2 rounded-md w-full"

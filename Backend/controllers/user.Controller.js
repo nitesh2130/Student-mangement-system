@@ -184,6 +184,10 @@ const updateUserData = asyncHandler(async(req, res) => {
 
     const {name, email, password, role} = req.body;
     console.log(id);
+    console.log(name);
+    console.log(email);
+    console.log(password);
+    console.log(role);
 
     //check feild is update or not
     if(!name && !email && !password && !role) {

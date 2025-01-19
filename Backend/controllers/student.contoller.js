@@ -4,6 +4,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { StudentModel } from "../db/index.js";
 import { authenticatUser } from "../middlewares/authentication.js";
 import { where } from "sequelize";
+import {Op} from "sequelize";
+
 
 //create student
 const RegisterStudent = asyncHandler(async(req,res) => {
@@ -77,7 +79,7 @@ const UpdateStudent = asyncHandler(async(req,res) => {
 
     const student = await StudentModel.findByPk(id);
     if(!student) {
-        throw new apiError(404, 'student is not found')
+        throw new ApiError(404, 'student is not found')
     }
 
     if(name) {
@@ -108,7 +110,7 @@ const UpdateStudent = asyncHandler(async(req,res) => {
         student.photo = photo
     }
 
-    console.log('................................................')
+    console.log(`...............................................${student.name}`)
     console.log(student.name)
 
     await student.save();
@@ -164,47 +166,40 @@ const GetAllStudent = asyncHandler(async(req, res) => {
 
 //filter by branch
 
-const NameAndSemesterWiseStudent = asyncHandler(async(req,res) => {
-    const { name, semester} = req.body;
 
-    if( !name && !semester ) {
-        throw new ApiError(409,'At least one filter is need')
+const NameAndSemesterWiseStudent = asyncHandler(async (req, res) => {
+  const { name, semester } = req.body;
+
+  if ((!name || !name.trim()) && (!semester || !semester.trim())) {
+    throw new ApiError(409, "At least one filter is required.");
+  }
+
+  const whereCondition = {};
+  if (name && name.trim()) {
+    whereCondition.name = { [Op.iLike]: `%${name.trim()}%` };
+  }
+  if (semester && semester.trim()) {
+    whereCondition.semester = Number(semester.trim()); // Ensure numeric type
+  }
+
+  try {
+    const students = await StudentModel.findAll({ where: whereCondition });
+    if (!students || students.length === 0) {
+      throw new ApiError(404, "No students found for the given filter.");
     }
 
-    //for getting filter student by branch 
-    if(name) {
-        const students = await StudentModel.findAll({
-            where:{name:name},
-            limit:10, //limit to display 10 user
-            offset:0, //start at first result
-        })
-
-        if(!students) {
-            throw new ApiError(404, `not have the student in ${name} name`)
-        }
-        res.status(200).json(
-            new ApiResponse(200, `This is all student is getting name: ${name}`, {students} )
-        )
-    }
+    res.status(200).json(
+      new ApiResponse(200, "Filtered students retrieved successfully.", {
+        students,
+      })
+    );
+  } catch (error) {
+    console.error("Error retrieving students:", error.message);
+    throw new ApiError(500, "An error occurred while retrieving students.");
+  }
+});
 
 
 
-    //for getting filter student by semster 
-    if(semester) {
-        const students = await StudentModel.findAll({
-            where:{semester:semester}
-            // limit:10, //limit to display 10 user
-            // offset:0, //start at first result
-        })
-
-        if(!students) {
-            throw new ApiError(404, `not have the student in ${semester}th semester`)
-        }
-        res.status(200).json(
-            new ApiResponse(200, `This is all student is getting ${semester}th semester`, {students} )
-        )
-    }
-
-})
 
 export { RegisterStudent, UpdateStudent, DeleteStudent, GetAllStudent, NameAndSemesterWiseStudent };

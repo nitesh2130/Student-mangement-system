@@ -1,62 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const AddStudent = () => {
-  const [user, setUser] = useState({});
+const UpdateStudent = () => {
+  const [newStudent, setNewStudent] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const studentInString = queryParams.get("student");
 
+  useEffect(() => {
+    if (studentInString) {
+      setNewStudent(JSON.parse(studentInString));
+    }
+  }, [studentInString]);
+
+  const id = newStudent?.id;
   const accessToken = localStorage.getItem("accessToken");
+  const apiUrl = `http://localhost:3000/users/student/updateStudent/${id}`;
 
   useEffect(() => {
     const isLogin = localStorage.getItem("isLogin");
-
     if (isLogin !== "true") {
       navigate("/");
     }
   }, [navigate]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUser({ ...user, [name]: value });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Student Details:", user);
 
-    fetch("http://localhost:3000/users/student/registerStudent", {
-      method: "POST",
+    fetch(apiUrl, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(user),
+      body: JSON.stringify(newStudent),
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to register student");
+          throw new Error("Failed to update data");
         }
         return response.json();
       })
       .then((data) => {
-        toast.success("Student registered successfully!", {
-          className: "bg-green-500 text-white font-semibold p-4 rounded-md",
-          progressClassName: "bg-white",
-        });
-
+        console.log("Update successful", data);
         navigate("/home");
       })
-      .catch((error) => {
-        console.error("Error registering:", error.message);
-      });
+      .catch((error) => console.log(error));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewStudent({ ...newStudent, [name]: value });
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-gray-100 shadow-md rounded-lg">
+    <div className="max-w-lg mx-auto mt-10 p-6 bg-gray-100 shadow-md rounded-lg">
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-        Add Student
+        User Information Form
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -66,11 +67,11 @@ const AddStudent = () => {
           <input
             type="text"
             name="name"
-            value={user.name || ""}
-            onChange={handleInputChange}
             required
+            value={newStudent.name || ""}
+            onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
-            placeholder="Enter student's name"
+            placeholder="Enter your name"
           />
         </div>
         <div>
@@ -80,11 +81,11 @@ const AddStudent = () => {
           <input
             type="email"
             name="email"
-            value={user.email || ""}
-            onChange={handleInputChange}
             required
+            value={newStudent.email || ""}
+            onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
-            placeholder="Enter student's email"
+            placeholder="Enter your email"
           />
         </div>
         <div>
@@ -94,11 +95,11 @@ const AddStudent = () => {
           <input
             type="text"
             name="branch"
-            value={user.branch || ""}
-            onChange={handleInputChange}
             required
+            value={newStudent.branch || ""}
+            onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
-            placeholder="Enter student's branch"
+            placeholder="Enter your branch"
           />
         </div>
         <div>
@@ -108,11 +109,11 @@ const AddStudent = () => {
           <input
             type="text"
             name="semester"
-            value={user.semester || ""}
-            onChange={handleInputChange}
             required
+            value={newStudent.semester || ""}
+            onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
-            placeholder="Enter semester"
+            placeholder="Enter your semester"
           />
         </div>
         <div>
@@ -122,9 +123,9 @@ const AddStudent = () => {
           <input
             type="date"
             name="dob"
-            value={user.dob || ""}
-            onChange={handleInputChange}
             required
+            value={newStudent.dob || ""}
+            onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
           />
         </div>
@@ -132,11 +133,11 @@ const AddStudent = () => {
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:ring focus:ring-blue-300 focus:outline-none"
         >
-          Add Student
+          Submit
         </button>
       </form>
     </div>
   );
 };
 
-export default AddStudent;
+export default UpdateStudent;
